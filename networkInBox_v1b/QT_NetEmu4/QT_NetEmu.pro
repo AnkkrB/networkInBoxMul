@@ -9,8 +9,12 @@ QT       +=widgets
 
 CONFIG += static
 
-win32:LIBS += -LC:\WpdPack\Lib -lwpcap
-win32:INCLUDEPATH += C:\WpdPack\include
+
+win32:LIBS += -LD:\AirPcap_Devpack_4_1_1_1838\WinPcap_Devpack\Lib -lwpcap
+win32:INCLUDEPATH += D:\AirPcap_Devpack_4_1_1_1838\WinPcap_Devpack\Include
+
+win32:LIBS += -LD:\AirPcap_Devpack_4_1_1_1838\Airpcap_Devpack\lib -lwpcap
+win32:INCLUDEPATH += D:\AirPcap_Devpack_4_1_1_1838\Airpcap_Devpack\include
 
 TARGET = QtNetEmu
 TEMPLATE = app
