@@ -10,6 +10,8 @@
 
 #include <QObject>
 #include <pcap.h>
+//airpcap
+#include <airpcap.h>
 #include <remote-ext.h>
 
 class Buffer;
@@ -61,6 +63,8 @@ private:
 
     pcap_t* pAdapterOne;
     pcap_t* pAdapterTwo;
+    //An
+    PAirpcapHandle airpcap_handle;
 
     Buffer* buffer1;
     Buffer* buffer2;
