@@ -122,7 +122,9 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
     QByteArray ba1 = interfaceDataList[interface1].interfaceName.toLatin1();
     QByteArray ba2 = interfaceDataList[interface2].interfaceName.toLatin1();
 
-    const char *interfaceOne = ba1.data();
+	// temporarily disable the online interface and enable offline file read
+    //  const char *interfaceOne = ba1.data();
+	const char *interfaceOne = "file://c:/temp/h264dump1.pcap";
     const char *interfaceTwo = ba2.data();
 
     char errbuf[PCAP_ERRBUF_SIZE];

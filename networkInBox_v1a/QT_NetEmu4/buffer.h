@@ -6,6 +6,8 @@
 #include <QWaitCondition>
 #include <windows.h>
 
+#define BUFFER_SIZE 2000
+
 class Buffer
 {
 public:
