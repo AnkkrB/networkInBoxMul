@@ -1,0 +1,15 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\networkinterface.o
+./debug\reader_thread.o
+./debug\buffer.o
+./debug\writer_thread.o
+./debug\PerformanceTimers.o
+./debug\monitorthread.o
+./debug\moc_mainwindow.o
+./debug\moc_networkinterface.o
+./debug\moc_reader_thread.o
+./debug\moc_writer_thread.o
+./debug\moc_monitorthread.o
+);

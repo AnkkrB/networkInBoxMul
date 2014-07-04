@@ -1,0 +1,15 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\networkinterface.o
+./release\reader_thread.o
+./release\buffer.o
+./release\writer_thread.o
+./release\PerformanceTimers.o
+./release\monitorthread.o
+./release\moc_mainwindow.o
+./release\moc_networkinterface.o
+./release\moc_reader_thread.o
+./release\moc_writer_thread.o
+./release\moc_monitorthread.o
+);
