@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QNetworkInterface>
 
+extern "C" PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
+
 QString NetworkEmulator::getInterfaceHardwareAddress(QString pcapName)
 {
     QString interfaceName = pcapName.section('_',1,1);
@@ -57,12 +59,13 @@ void NetworkEmulator::lookupAdapterInterfaces()
 
     char errbuf[PCAP_ERRBUF_SIZE];
 
+    //An // Create a list of network devices that can be opened with pcap_open()
     if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
     {
         qDebug() << "Error in pcap_findalldevs_ex: " << errbuf  ;
         return;
     }
-
+    //An // Print the device list
     for(d= alldevs, i=0; d != NULL; d= d->next, i++)
     {
         InterfaceData data;
@@ -125,6 +128,7 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
     const char *interfaceTwo = ba2.data();
 
     char errbuf[PCAP_ERRBUF_SIZE];
+    u_int32_t freq_chan = 11;
 
     if ( (pAdapterOne= pcap_open(interfaceOne,          	// name of the device
                                   PACKET_CAPTURE_SIZE,  	// portion of the packet to capture
@@ -149,6 +153,34 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
     {
         qDebug() << "Unable to open the adapter." << interfaceDataList[interface2].interfaceName << " is not supported by WinPcap";
     }
+
+    //An
+    // Returns the AirPcap handler associated with an adapter.
+    // This handler can be used to change the wireless-related settings of the CACE Technologies AirPcap wireless capture adapters.
+    airpcap_handle = (PAirpcapHandle)pcap_get_airpcap_handle(pAdapterTwo);
+
+    if(airpcap_handle == NULL)
+    {
+         printf("Problem in opening Aipcap handler");
+         pcap_close(pAdapterTwo);
+         return;
+    }
+    if(!AirpcapSetDeviceChannel(airpcap_handle, freq_chan))
+    {
+         printf("Error in Setting the Channel : %s", AirpcapGetLastError(airpcap_handle));
+         return;
+    }
+
+     //An
+     //
+     // Set the link layer to 802.11 plus ppi headers
+     //
+     if(!AirpcapSetLinkType(airpcap_handle, AIRPCAP_LT_802_11_PLUS_PPI))
+     {
+         printf("Error setting the link layer: %s\n", AirpcapGetLastError(airpcap_handle));
+         AirpcapClose(airpcap_handle);
+         return;
+     }
 }
 
 void NetworkEmulator::startBridge()

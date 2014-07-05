@@ -12,7 +12,7 @@ CONFIG += static
 win32:LIBS += -LI:\AirPcap_Devpack_4_1_1_1838\WinPcap_Devpack\Lib -lwpcap
 win32:INCLUDEPATH += I:\AirPcap_Devpack_4_1_1_1838\WinPcap_Devpack\Include
 
-win32:LIBS += -LI:\AirPcap_Devpack_4_1_1_1838\Airpcap_Devpack\lib -lwpcap
+win32:LIBS += -LI:\AirPcap_Devpack_4_1_1_1838\Airpcap_Devpack\lib -lairpcap
 win32:INCLUDEPATH += I:\AirPcap_Devpack_4_1_1_1838\Airpcap_Devpack\include
 
 TARGET = QtNetEmu
