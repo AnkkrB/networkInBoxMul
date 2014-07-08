@@ -7,6 +7,7 @@
 #include <windows.h>
 
 #define BUFFER_SIZE 2000
+#define Test_tx_len 110
 
 class Buffer
 {

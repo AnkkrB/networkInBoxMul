@@ -5,8 +5,16 @@
 #include <QDebug>
 #include <QNetworkInterface>
 
+#include "PpiHeader.h"
+
+
+
+PPI_PACKET_HEADER *radio_header;
 FILE *fpData;
 extern "C" PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
+
+u_char TxPacket_tst[Test_tx_len+sizeof(PPI_PACKET_HEADER)];
+
 
 QString NetworkEmulator::getInterfaceHardwareAddress(QString pcapName)
 {
@@ -120,6 +128,8 @@ void NetworkEmulator::setMacFilters(QString filterInterfaceOne, QString filterIn
 
 void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
 {
+    //An
+    AirpcapMacAddress MacAddress;
     selectedInterfaceIndex1 = interface1;
     selectedInterfaceIndex2 = interface2;
 
@@ -185,6 +195,16 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
          AirpcapClose(airpcap_handle);
          return;
      }
+     //An
+     // Get the MAC address
+     //
+     if (!AirpcapGetMacAddress(airpcap_handle, &MacAddress))
+     {
+         printf("Error retrieving the MAC address: %s\n", AirpcapGetLastError(airpcap_handle));
+         fprintf(fpData, "\n15: Error retrieving the MAC address: %s\n", AirpcapGetLastError(airpcap_handle));
+         return;
+     }
+     radio_header = (PPI_PACKET_HEADER*)TxPacket_tst;
 }
 
 void NetworkEmulator::startBridge()
