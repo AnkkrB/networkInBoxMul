@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QNetworkInterface>
 
+FILE *fpData;
 extern "C" PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
 
 QString NetworkEmulator::getInterfaceHardwareAddress(QString pcapName)
@@ -20,6 +21,8 @@ QString NetworkEmulator::getInterfaceHardwareAddress(QString pcapName)
 NetworkEmulator::NetworkEmulator(QObject *parent) :
     QObject(parent)
 {
+    // file logging
+    fpData = fopen("rcvData.txt", "a+");
     lookupAdapterInterfaces();
     buffer1 = new Buffer(BUFFER_SIZE);
     buffer2 = new Buffer(BUFFER_SIZE);
@@ -41,6 +44,7 @@ void NetworkEmulator::Stop()
 
     buffer1->reset();
     buffer2->reset();
+    fclose(fpData);
 
 //    writerThread1.stop();
 //    writerThread2.stop();

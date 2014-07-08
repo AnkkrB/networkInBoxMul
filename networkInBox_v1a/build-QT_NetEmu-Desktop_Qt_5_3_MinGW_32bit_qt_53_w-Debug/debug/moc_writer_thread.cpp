@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../../QT_NetEmu4/writer_thread.h"
+#include "../../../../networkInBox_v1a_MajorModification_0707/QT_NetEmu4/writer_thread.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
