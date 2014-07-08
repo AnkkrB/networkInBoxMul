@@ -130,6 +130,9 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
 {
     //An
     AirpcapMacAddress MacAddress;
+    double testtxrates = 0;
+    int ratesend = 9;
+
     selectedInterfaceIndex1 = interface1;
     selectedInterfaceIndex2 = interface2;
 
@@ -204,7 +207,55 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
          fprintf(fpData, "\n15: Error retrieving the MAC address: %s\n", AirpcapGetLastError(airpcap_handle));
          return;
      }
+
      radio_header = (PPI_PACKET_HEADER*)TxPacket_tst;
+     radio_header->PphLength = sizeof(PPI_PACKET_HEADER);
+     radio_header->PphDlt = 105;
+     radio_header->PfhType = PPI_PFHTYPE_80211NMACPHY;
+     radio_header->PfhLength = PPI_PFHTYPE_80211NMACPHY_SIZE;
+     radio_header->MCS = (UCHAR)(testtxrates);
+
+     radio_header->NumStreams = 1;
+
+     //Frame Control
+     TxPacket_tst[radio_header->PphLength] = 8;
+     TxPacket_tst[radio_header->PphLength+1] = 218;
+     //Duration / ID
+     TxPacket_tst[radio_header->PphLength+2] = 186;
+     TxPacket_tst[radio_header->PphLength+3] = 113;
+
+     //Dest Address - 00:80:48:6F:25:02
+     TxPacket_tst[radio_header->PphLength+4] = 0;
+     TxPacket_tst[radio_header->PphLength+5] = 128;
+     TxPacket_tst[radio_header->PphLength+6] = 72;
+     TxPacket_tst[radio_header->PphLength+7] = 111;
+     TxPacket_tst[radio_header->PphLength+8] = 35;
+     TxPacket_tst[radio_header->PphLength+9] = 05;
+
+     //Source Address - 00:80:48:6F:23:05
+     TxPacket_tst[radio_header->PphLength + 10] = MacAddress.Address[0];
+     TxPacket_tst[radio_header->PphLength + 11] = MacAddress.Address[1];
+     TxPacket_tst[radio_header->PphLength + 12] = MacAddress.Address[2];
+     TxPacket_tst[radio_header->PphLength + 13] = MacAddress.Address[3];
+     TxPacket_tst[radio_header->PphLength + 14] = MacAddress.Address[4];
+     TxPacket_tst[radio_header->PphLength + 15] = MacAddress.Address[5];
+
+     //BSS ID
+     TxPacket_tst[radio_header->PphLength + 16] = MacAddress.Address[0];
+     TxPacket_tst[radio_header->PphLength + 17] = MacAddress.Address[1];
+     TxPacket_tst[radio_header->PphLength + 18] = MacAddress.Address[2];
+     TxPacket_tst[radio_header->PphLength + 19] = MacAddress.Address[3];
+     TxPacket_tst[radio_header->PphLength + 20] = MacAddress.Address[4];
+     TxPacket_tst[radio_header->PphLength + 21] = MacAddress.Address[5];
+
+     TxPacket_tst[radio_header->PphLength+24] = 106;	//6A	// TBD analyze these header fields
+     TxPacket_tst[radio_header->PphLength+25] = 10;	//A
+     TxPacket_tst[radio_header->PphLength+26] = 218;	//DA
+     TxPacket_tst[radio_header->PphLength+27] = 154;	//9A
+     TxPacket_tst[radio_header->PphLength+28] = ratesend;	//1
+     TxPacket_tst[radio_header->PphLength+29] = 1;	//1
+     TxPacket_tst[radio_header->PphLength+30] = 1;	//1
+
 }
 
 void NetworkEmulator::startBridge()

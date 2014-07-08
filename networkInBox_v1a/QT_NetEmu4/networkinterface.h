@@ -13,6 +13,8 @@
 #include <airpcap.h>
 #include <remote-ext.h>
 
+#define PPI_PFHTYPE_80211NMACPHY 4
+#define PPI_PFHTYPE_80211NMACPHY_SIZE 48
 class Buffer;
 struct CollectedStatistics;
 
