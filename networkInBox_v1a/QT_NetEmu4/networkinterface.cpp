@@ -114,8 +114,8 @@ void NetworkEmulator::setMacFilters(QString filterInterfaceOne, QString filterIn
     if ( filterInterfaceTwo != "")
         baseFilter2 = baseFilter2 + QString(" and (%1)").arg(filterInterfaceTwo);
 
-    setupWinPcapFilter(&pAdapterOne, baseFilter1);
-    setupWinPcapFilter(&pAdapterTwo, baseFilter2);
+ //   setupWinPcapFilter(&pAdapterOne, baseFilter1);
+//    setupWinPcapFilter(&pAdapterTwo, baseFilter2);
 }
 
 void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
@@ -192,10 +192,10 @@ void NetworkEmulator::startBridge()
     readerThread1.readFromAdapter(1,pAdapterOne,buffer1);
     writerThread1.writeToAdapter(1,pAdapterTwo,buffer1);
 
-    readerThread2.readFromAdapter(2,pAdapterTwo,buffer2);
-    writerThread2.writeToAdapter(2,pAdapterOne,buffer2);
+ //   readerThread2.readFromAdapter(2,pAdapterTwo,buffer2);
+//    writerThread2.writeToAdapter(2,pAdapterOne,buffer2);
 
-    monitorThread.pollValues(&readerThread1,&readerThread2,1000);
+ //   monitorThread.pollValues(&readerThread1,&readerThread2,1000);
 }
 
 int NetworkEmulator::setupWinPcapFilter(pcap_t** fp, QString macFilter)
