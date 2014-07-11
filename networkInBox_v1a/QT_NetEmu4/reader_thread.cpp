@@ -6,7 +6,7 @@
 #include <QDebug>
 
 extern u_char TxPacket_tst[110+60];
-u_char *pktWifi_data[50];
+u_char *pktWifi_data[MAX_PKTS_STORED];
 static int counter = 0;
 
 ReaderThread::ReaderThread(QObject *parent) :
@@ -162,18 +162,18 @@ void ReaderThread::run()
 
     while(!quit && (res = pcap_next_ex( pAdapter , &header, &pkt_data)) >= 0)
     {
-        pktWifi_data[counter] = (u_char*)malloc(sizeof(u_char)*((header->caplen)+170));
+        pktWifi_data[counter] = (u_char*)malloc(sizeof(u_char)*((header->caplen)+PPI802_HEADER_SIZE));
         pkt_data = pktWifi_data[counter];
-        memcpy(&pktWifi_data[counter][0], TxPacket_tst, sizeof(u_char)*(170));
-        memcpy(&pktWifi_data[counter][170], pkt_data, sizeof(u_char)*(header->caplen) );
+        memcpy(&pktWifi_data[counter][0], TxPacket_tst, sizeof(u_char)*(PPI802_HEADER_SIZE));
+        memcpy(&pktWifi_data[counter][PPI802_HEADER_SIZE], pkt_data, sizeof(u_char)*(header->caplen) );
         if(res == 0)
             continue; // Timeout elapsed
 
         increaseTotalBytesRead( header->caplen );
 
         if (  !isThisPacketToBeDropped() )
-            buffer->addPacket(pktWifi_data[counter],(header->caplen+170));
-        counter = (counter + 1) % 50;
+            buffer->addPacket(pktWifi_data[counter],(header->caplen+PPI802_HEADER_SIZE));
+        counter = (counter + 1) % MAX_PKTS_STORED;
     }
     qDebug() << "Reader thread "<< interfaceNumber <<  " exited";
 }

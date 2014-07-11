@@ -8,6 +8,8 @@
 
 #define BUFFER_SIZE 2000
 #define Test_tx_len 110
+#define PPI802_HEADER_SIZE 170
+#define MAX_PKTS_STORED 50
 
 class Buffer
 {
