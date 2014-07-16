@@ -1,4 +1,4 @@
-function avg_psnr = psnrAvg(file1, file2, width, height, numFrames)
+function [avg_psnr in out] = psnrAvg(file1, file2, width, height, numFrames)
     x = tic
 
     in = loadFileYuv(file1, width, height, 1:numFrames)

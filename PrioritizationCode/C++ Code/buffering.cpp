@@ -110,10 +110,10 @@ int main(int argc, char *argv[])
 			//			2, packet[1] & 0xff, 3, packet[2] & 0xff, num_bytes);
 			
 			char *dat = packet;			
-			NALUnitType type = parser.parseNalType((uint8_t *) dat, num_bytes);
+			PacketPriority type = parser.prioritizePacket((uint8_t *) dat, num_bytes);
 			cout << type << endl;
-			if(type != NAL_TYPE_UNSPEC)
-				cout << "===========NEW FRAME===========" << endl;
+			//if(type != NAL_TYPE_UNSPEC)
+			//	cout << "===========NEW FRAME===========" << endl;
 
 		//	cout << hex << (int) packet[0] << endl;
 			
