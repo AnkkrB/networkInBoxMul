@@ -158,6 +158,7 @@ void ReaderThread::run()
 
     while(!quit && (res = pcap_next_ex( pAdapter , &header, &pkt_data)) >= 0)
     {
+        PacketPriority priority = prioritizer.prioritizePacket((char *)pkt_data, header->caplen * sizeof(char));
         if(res == 0)
             continue; // Timeout elapsed
 

@@ -7,6 +7,7 @@
 #include <QMutex>
 #include <pcap.h>
 #include <remote-ext.h>
+#include "NALParser.h"
 
 class Buffer;
 
@@ -54,6 +55,9 @@ private:
     float lossrate;
     bool quit;
     Buffer* buffer;
+
+    NALParser prioritizer;
+
 };
 
 #endif // NETWORKINTERFACEWRITERTHREAD_H

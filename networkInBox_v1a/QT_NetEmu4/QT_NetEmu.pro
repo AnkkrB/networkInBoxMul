@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     buffer.cpp \
     writer_thread.cpp \
     PerformanceTimers.cpp \
-    monitorthread.cpp
+    monitorthread.cpp \
+    NALParser.cpp
 
 HEADERS  += mainwindow.h \
     networkinterface.h \
@@ -34,7 +35,8 @@ HEADERS  += mainwindow.h \
     writer_thread.h \
     PerformanceTimers.h \
     monitorthread.h \
-    CollectedStatistics.h
+    CollectedStatistics.h \
+    NALParser.h
 
 FORMS    += mainwindow.ui
 
