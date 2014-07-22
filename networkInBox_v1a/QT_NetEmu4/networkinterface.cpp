@@ -124,7 +124,7 @@ void NetworkEmulator::setMacFilters(QString filterInterfaceOne, QString filterIn
         baseFilter2 = baseFilter2 + QString(" and (%1)").arg(filterInterfaceTwo);
         */
 
-    setupWinPcapFilter(&pAdapterOne, baseFilter1);
+//    setupWinPcapFilter(&pAdapterOne, baseFilter1);
 //    setupWinPcapFilter(&pAdapterTwo, baseFilter2);
 }
 
@@ -144,7 +144,7 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
 
     // temporarily disable the online interface and enable offline file read
     //  const char *interfaceOne = ba1.data();
-	const char *interfaceOne = "file://c:/temp/h264dump1.pcap";
+    const char *interfaceOne = "file://c:/temp/foreman_cif_ipbFrames_udpNoIcmp.pcap";
     const char *interfaceTwo = ba2.data();
 
     char errbuf[PCAP_ERRBUF_SIZE];

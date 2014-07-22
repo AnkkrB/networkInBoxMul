@@ -165,6 +165,8 @@ void ReaderThread::run()
         pktWifi_data[counter] = (u_char*)malloc(sizeof(u_char)*((header->caplen)+PPI802_HEADER_SIZE));
         memcpy(&pktWifi_data[counter][0], TxPacket_tst, sizeof(u_char)*(PPI802_HEADER_SIZE));
         memcpy(&pktWifi_data[counter][PPI802_HEADER_SIZE], pkt_data, sizeof(u_char)*(header->caplen) );
+        PacketPriority priority = prioritizer.prioritizePacket((char *)pktWifi_data[counter],
+                                                                sizeof(char)*((header->caplen)+PPI802_HEADER_SIZE));
         if(res == 0)
             continue; // Timeout elapsed
 
