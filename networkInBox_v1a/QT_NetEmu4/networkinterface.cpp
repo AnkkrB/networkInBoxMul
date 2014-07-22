@@ -12,9 +12,7 @@
 PPI_PACKET_HEADER *radio_header;
 FILE *fpData;
 extern "C" PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
-
-u_char TxPacket_tst[Test_tx_len+sizeof(PPI_PACKET_HEADER)];
-
+u_char TxPacket_tst[PPI802_HEADER_SIZE];
 
 QString NetworkEmulator::getInterfaceHardwareAddress(QString pcapName)
 {
@@ -114,15 +112,19 @@ void NetworkEmulator::setMacFilters(QString filterInterfaceOne, QString filterIn
     QString interface1MAC = interfaceDataList[selectedInterfaceIndex1].hardwareAddress;
     QString interface2MAC = interfaceDataList[selectedInterfaceIndex2].hardwareAddress;
     // Filter out packets genereated from the selected interfaces
-    QString baseFilter1 = QString("(not ether src %1) and (not ether dst %2)").arg(interface1MAC).arg(interface2MAC);
+   /* QString baseFilter1 = QString("(ether src %1) and (not ether dst %2)").arg(interface1MAC).arg(interface2MAC);
     if ( filterInterfaceOne != "")
         baseFilter1 = baseFilter1 + QString(" and (%1)").arg(filterInterfaceOne);
-
-    QString baseFilter2 = QString("(not ether src %1) and (not ether dst %2)").arg(interface2MAC).arg(interface1MAC);
+*/
+    QString baseFilter1 = QString("(src port 39082)").arg(interface1MAC).arg(interface2MAC);
+        /*if ( filterInterfaceOne != "")
+            baseFilter1 = baseFilter1 + QString(" and (%1)").arg(filterInterfaceOne);*/
+    /*QString baseFilter2 = QString("(src port 39082)").arg(interface2MAC).arg(interface1MAC);
     if ( filterInterfaceTwo != "")
         baseFilter2 = baseFilter2 + QString(" and (%1)").arg(filterInterfaceTwo);
+        */
 
- //   setupWinPcapFilter(&pAdapterOne, baseFilter1);
+    setupWinPcapFilter(&pAdapterOne, baseFilter1);
 //    setupWinPcapFilter(&pAdapterTwo, baseFilter2);
 }
 
@@ -132,6 +134,7 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
     AirpcapMacAddress MacAddress;
     double testtxrates = 0;
     int ratesend = 9;
+    AirpcapChannelInfo 	ChannelInfo;
 
     selectedInterfaceIndex1 = interface1;
     selectedInterfaceIndex2 = interface2;
@@ -182,10 +185,16 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
          pcap_close(pAdapterTwo);
          return;
     }
-    if(!AirpcapSetDeviceChannel(airpcap_handle, freq_chan))
+
+    ChannelInfo.Frequency = 2462;
+    ChannelInfo.ExtChannel = 1;
+    ChannelInfo.Flags = AIRPCAP_CIF_TX_ENABLED;
+
+    if (!AirpcapSetDeviceChannelEx(airpcap_handle, ChannelInfo))
     {
-         printf("Error in Setting the Channel : %s", AirpcapGetLastError(airpcap_handle));
-         return;
+        printf("Error in Setting the Channel Ext : %s", AirpcapGetLastError(airpcap_handle));
+        fprintf(fpData, "\n13: Error in Setting the Channel Ext: %s", AirpcapGetLastError(airpcap_handle));
+        return;
     }
 
      //An

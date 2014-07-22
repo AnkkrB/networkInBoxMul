@@ -5,8 +5,8 @@
 #include <cmath>
 #include <QDebug>
 
-extern u_char TxPacket_tst[110+60];
 u_char *pktWifi_data[MAX_PKTS_STORED];
+extern u_char TxPacket_tst[PPI802_HEADER_SIZE];
 static int counter = 0;
 
 ReaderThread::ReaderThread(QObject *parent) :
@@ -163,7 +163,6 @@ void ReaderThread::run()
     while(!quit && (res = pcap_next_ex( pAdapter , &header, &pkt_data)) >= 0)
     {
         pktWifi_data[counter] = (u_char*)malloc(sizeof(u_char)*((header->caplen)+PPI802_HEADER_SIZE));
-        pkt_data = pktWifi_data[counter];
         memcpy(&pktWifi_data[counter][0], TxPacket_tst, sizeof(u_char)*(PPI802_HEADER_SIZE));
         memcpy(&pktWifi_data[counter][PPI802_HEADER_SIZE], pkt_data, sizeof(u_char)*(header->caplen) );
         if(res == 0)

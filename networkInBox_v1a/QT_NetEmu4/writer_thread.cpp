@@ -4,6 +4,7 @@
 
 #include <QDebug>
 
+extern u_char *pktWifi_data[MAX_PKTS_STORED];
 WriterThread::WriterThread(QObject *parent) :
     QThread (parent)
 {
@@ -57,6 +58,7 @@ void WriterThread::run()
     int early;
     int totalBytes = 0;
     unsigned int bandConsumed = 0;
+    static int counterW = 0;
 
     pTimer loopTimer;
 
@@ -86,6 +88,8 @@ void WriterThread::run()
                 }
 
                 pcap_sendpacket(pAdapter, pkt_data, size);
+                free(&pktWifi_data[counterW][0]);
+                counterW++;
 
                 totalBytes += size;
                 bandConsumed = totalBytes * 8;
