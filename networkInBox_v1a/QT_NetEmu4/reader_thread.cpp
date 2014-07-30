@@ -2,6 +2,8 @@
 #include "buffer.h"
 #include "PerformanceTimers.h"
 
+#include "NALParser.h"
+
 #include <cmath>
 #include <QDebug>
 
@@ -162,11 +164,20 @@ void ReaderThread::run()
 
     while(!quit && (res = pcap_next_ex( pAdapter , &header, &pkt_data)) >= 0)
     {
+        PacketPriority priority = prioritizer.prioritizePacket((char *)pkt_data, header->caplen * sizeof(char));
+        cout << "Priority score: " << priority << endl;
+        if (priority == PRIORITY_HIGH) {
+            TxPacket_tst[21] = (UCHAR)(6);
+        } else if (priority == PRIORITY_MED_HIGH) {
+            TxPacket_tst[21] = (UCHAR)(7);
+        } else if (priority == PRIORITY_MED_LOW) {
+            TxPacket_tst[21] = (UCHAR)(8);
+        } else {  //(priority == PRIORITY_LOW)
+            TxPacket_tst[21] = (UCHAR)(9);
+        }
         pktWifi_data[counter] = (u_char*)malloc(sizeof(u_char)*((header->caplen)+PPI802_HEADER_SIZE));
         memcpy(&pktWifi_data[counter][0], TxPacket_tst, sizeof(u_char)*(PPI802_HEADER_SIZE));
         memcpy(&pktWifi_data[counter][PPI802_HEADER_SIZE], pkt_data, sizeof(u_char)*(header->caplen) );
-        PacketPriority priority = prioritizer.prioritizePacket((char *)pktWifi_data[counter],
-                                                                sizeof(char)*((header->caplen)+PPI802_HEADER_SIZE));
         if(res == 0)
             continue; // Timeout elapsed
 
