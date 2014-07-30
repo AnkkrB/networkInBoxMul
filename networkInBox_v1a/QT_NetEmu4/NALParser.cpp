@@ -71,7 +71,7 @@ PacketPriority NALParser::prioritizePacket(const char *buf, int length)
 	else
 		priority = PRIORITY_LOW;
 
-	return PRIORITY_HIGH;
+    return priority;
 }
 
 //Go through the buffer to find the NAL unit type
