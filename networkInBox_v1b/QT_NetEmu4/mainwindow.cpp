@@ -72,7 +72,8 @@ void MainWindow::addAdapterInterface(QString interfaceDescription)
     ui->comboBox_adapter2->addItem(interfaceDescription);
 
     if ( ui->comboBox_adapter2->currentIndex() == 0 && ui->comboBox_adapter2->count() > 1 )
-        ui->comboBox_adapter2->setCurrentIndex(1);
+        ui->comboBox_adapter2->setCurrentIndex(0);
+    ui->comboBox_adapter1->setCurrentIndex(1);
 }
 
 
