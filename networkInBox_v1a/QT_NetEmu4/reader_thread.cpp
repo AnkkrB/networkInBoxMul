@@ -238,5 +238,8 @@ void ReaderThread::run()
         counter = (counter + 1) % MAX_PKTS_STORED;
     }
     qDebug() << "Reader thread "<< interfaceNumber <<  " exited";
+
+    emit readEnds();
 }
+
 

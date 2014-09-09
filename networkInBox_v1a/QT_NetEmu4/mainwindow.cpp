@@ -2,12 +2,23 @@
 #include "networkinterface.h"
 #include "ui_mainwindow.h"
 #include "CollectedStatistics.h"
+#include <QCloseEvent>
 
-MainWindow::MainWindow(QWidget *parent) :
+char *interfaceOne; // = "file://c:/temp/footballCifNoICMP.pcap";
+extern int flag;
+
+MainWindow::MainWindow(QStringList arguments, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    qDebug()<< "win arg" << arguments.at(1);
+
+    string filename = arguments.at(1).toStdString();
+    interfaceOne = new char [filename.size()+1];
+    strcpy(interfaceOne, filename.c_str());
+
+    qDebug()<< "win arg1" << interfaceOne;
     connect(ui->pushButton_start,SIGNAL(clicked()),this,SLOT(startButtonClick()));
     connect(ui->pushButton_refreshInterfaceList,SIGNAL(clicked()),this,SLOT(refreshInterfaceListButtonClick()));
     connect(ui->spinBox_packetLoss1,SIGNAL(editingFinished()),this,SLOT(lossRateChanged()));
@@ -18,16 +29,33 @@ MainWindow::MainWindow(QWidget *parent) :
     networkBridge = new NetworkEmulator(this);
     connect(networkBridge,SIGNAL(addAdapterInterface(QString)),this,SLOT(addAdapterInterface(QString)));
     connect(networkBridge,SIGNAL(statisticsCollected(CollectedStatistics*)),this,SLOT(receiveStatistics(CollectedStatistics*)));
+    connect(networkBridge, SIGNAL(readEnds()), this, SLOT(startButtonClick()));
 
     networkBridge->lookupAdapterInterfaces();
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     started = false;
+    eventList = new QTestEventList;
+    QTimer::singleShot(500, this, SLOT(startButtonClick()));
 }
+
+void MainWindow::autoMouseClickStart() {
+
+    eventList->addMouseClick(Qt::LeftButton, 0, QPoint (ui->pushButton_start->pos().x()+3, ui->pushButton_start->pos().y()+3), -1);
+    eventList->simulate(this);
+
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    event->accept();
+    QTimer::singleShot(250, qApp, SLOT(quit()));
+}
+
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete eventList;
 }
 
 void MainWindow::receiveStatistics(CollectedStatistics* stats)
@@ -72,7 +100,8 @@ void MainWindow::addAdapterInterface(QString interfaceDescription)
     ui->comboBox_adapter2->addItem(interfaceDescription);
 
     if ( ui->comboBox_adapter2->currentIndex() == 0 && ui->comboBox_adapter2->count() > 1 )
-        ui->comboBox_adapter2->setCurrentIndex(1);
+        ui->comboBox_adapter2->setCurrentIndex(0);
+    ui->comboBox_adapter1->setCurrentIndex(1);
 }
 
 
@@ -87,7 +116,10 @@ void MainWindow::startButtonClick()
         ui->lineEdit_macFilter1->setEnabled(true);
         ui->lineEdit_macFilter2->setEnabled(true);
         ui->pushButton_refreshInterfaceList->setEnabled(true);
-        networkBridge->Stop();
+
+        if (flag == 0)
+            networkBridge->Stop();
+        close();
     }
     else
     {
@@ -101,12 +133,12 @@ void MainWindow::startButtonClick()
 
 
         int selectedIndexOne = ui->comboBox_adapter1->currentIndex();
-       // QString nameInterfaceOne = ui->comboBox_adapter1->itemData(selectedIndexOne).toString();
+        // QString nameInterfaceOne = ui->comboBox_adapter1->itemData(selectedIndexOne).toString();
         QString macFilterOne = ui->lineEdit_macFilter1->text();
         int lossRate1 = ui->spinBox_packetLoss1->value();
 
         int selectedIndexTwo = ui->comboBox_adapter2->currentIndex();
-      //  QString nameInterfaceTwo = ui->comboBox_adapter2->itemData(selectedIndexTwo).toString();
+        //  QString nameInterfaceTwo = ui->comboBox_adapter2->itemData(selectedIndexTwo).toString();
         QString macFilterTwo = ui->lineEdit_macFilter2->text();
         int lossRate2 = ui->spinBox_packetLoss2->value();
 

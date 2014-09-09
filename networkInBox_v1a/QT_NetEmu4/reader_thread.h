@@ -32,6 +32,7 @@ public:
 
     void setLossRate(int lossrate);
 signals:
+    void readEnds();
 
 public slots:
 

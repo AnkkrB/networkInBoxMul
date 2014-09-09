@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets/QMainWindow>
+#include<QtTest/QTestEventList>
+#include<QTimer>
 
 class NetworkEmulator;
 struct CollectedStatistics;
@@ -15,7 +17,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QStringList, QWidget *parent = 0);
     ~MainWindow();
 
 public slots:
@@ -27,11 +29,16 @@ private slots:
     void lossRateChanged();
     void bandWidthChanged();
     void receiveStatistics(CollectedStatistics* stats);
+    void autoMouseClickStart();
+
+protected:
+     void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
     NetworkEmulator* networkBridge;
     bool started;
+    QTestEventList *eventList;
 };
 
 #endif // MAINWINDOW_H

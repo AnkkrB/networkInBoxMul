@@ -5,7 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui network
-QT       +=widgets
+QT       += widgets
+QT       += testlib
 
 CONFIG += static
 

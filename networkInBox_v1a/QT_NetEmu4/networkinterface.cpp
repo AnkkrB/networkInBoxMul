@@ -7,12 +7,10 @@
 
 #include "PpiHeader.h"
 
-
-
+int flag;
 PPI_PACKET_HEADER *radio_header;
 FILE *fpData;
 extern "C" PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
-
 u_char TxPacket_tst[PPI802_HEADER_SIZE];
 
 
@@ -31,11 +29,13 @@ NetworkEmulator::NetworkEmulator(QObject *parent) :
 {
     // file logging
     fpData = fopen("rcvData.txt", "a+");
+    flag = 0;
     lookupAdapterInterfaces();
     buffer1 = new Buffer(BUFFER_SIZE);
     buffer2 = new Buffer(BUFFER_SIZE);
     connect(&monitorThread,SIGNAL(statisticsCollected(CollectedStatistics*)),this,SLOT(receiveStatistics(CollectedStatistics*)));
 
+    connect(&readerThread1, SIGNAL(readEnds()), this, SLOT(readerThreadExits()));
 }
 
 NetworkEmulator::~NetworkEmulator()
@@ -54,13 +54,23 @@ void NetworkEmulator::Stop()
     buffer2->reset();
     fclose(fpData);
 
-//    writerThread1.stop();
-//    writerThread2.stop();
+    writerThread1.stop();
+
+    flag = 1;
+
 }
 
 void NetworkEmulator::receiveStatistics(CollectedStatistics* stats)
 {
     emit statisticsCollected(stats);
+}
+
+void NetworkEmulator::readerThreadExits()
+{    emit readEnds();
+}
+
+void NetworkEmulator::writerThreadExits()
+{
 }
 
 void NetworkEmulator::lookupAdapterInterfaces()
@@ -126,7 +136,7 @@ void NetworkEmulator::setMacFilters(QString filterInterfaceOne, QString filterIn
         baseFilter2 = baseFilter2 + QString(" and (%1)").arg(filterInterfaceTwo);
         */
 
- //   setupWinPcapFilter(&pAdapterOne, baseFilter1);
+//    setupWinPcapFilter(&pAdapterOne, baseFilter1);
 //    setupWinPcapFilter(&pAdapterTwo, baseFilter2);
 }
 

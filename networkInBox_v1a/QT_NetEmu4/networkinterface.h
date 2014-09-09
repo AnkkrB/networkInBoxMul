@@ -41,8 +41,11 @@ public:
 signals:
     void addAdapterInterface(QString interfaceDescription);
     void statisticsCollected(CollectedStatistics* stats);
+    void readEnds();
 public slots:
     void receiveStatistics(CollectedStatistics* stats);
+    void readerThreadExits();
+    void writerThreadExits();
 
 private:
     QString getInterfaceHardwareAddress(QString name);
