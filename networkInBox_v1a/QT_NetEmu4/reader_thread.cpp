@@ -2,8 +2,15 @@
 #include "buffer.h"
 #include "PerformanceTimers.h"
 
+#include "NALParser.h"
+
 #include <cmath>
 #include <QDebug>
+
+u_char *pktWifi_data[MAX_PKTS_STORED];
+extern u_char TxPacket_tst[PPI802_HEADER_SIZE];
+//extern PPI_PACKET_HEADER *radio_header;
+static int counter = 0;
 
 ReaderThread::ReaderThread(QObject *parent) :
     QThread(parent)
@@ -15,6 +22,7 @@ ReaderThread::ReaderThread(QObject *parent) :
     quit = true;
     packetsSent = 0;
     packetsDropped = 0;
+    eep_mcs = 5;
 
 }
 
@@ -159,13 +167,20 @@ void ReaderThread::run()
     while(!quit && (res = pcap_next_ex( pAdapter , &header, &pkt_data)) >= 0)
     {
         PacketPriority priority = prioritizer.prioritizePacket((char *)pkt_data, header->caplen * sizeof(char));
+        TxPacket_tst[21] = eep_mcs;//eep_mcs; //(UCHAR)(8);  // MCS 0 - 15
+        pktWifi_data[counter] = (u_char*)malloc(sizeof(u_char)*((header->caplen)+PPI802_HEADER_SIZE));
+        memcpy(&pktWifi_data[counter][0], TxPacket_tst, sizeof(u_char)*(PPI802_HEADER_SIZE));
+        memcpy(&pktWifi_data[counter][PPI802_HEADER_SIZE], pkt_data, sizeof(u_char)*(header->caplen) );
+        //PacketPriority priority = prioritizer.prioritizePacket((char *)pktWifi_data[counter],
+          //                                                      sizeof(char)*((header->caplen)+PPI802_HEADER_SIZE));
         if(res == 0)
             continue; // Timeout elapsed
 
         increaseTotalBytesRead( header->caplen );
 
         if (  !isThisPacketToBeDropped() )
-            buffer->addPacket(pkt_data,header->caplen);
+            buffer->addPacket(pktWifi_data[counter],(header->caplen+PPI802_HEADER_SIZE));
+        counter = (counter + 1) % MAX_PKTS_STORED;
     }
     qDebug() << "Reader thread "<< interfaceNumber <<  " exited";
 }

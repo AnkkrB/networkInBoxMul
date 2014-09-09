@@ -58,6 +58,7 @@ private:
 
     NALParser prioritizer;
 
+    UCHAR eep_mcs;
 };
 
 #endif // NETWORKINTERFACEWRITERTHREAD_H

@@ -13,7 +13,7 @@ PPI_PACKET_HEADER *radio_header;
 FILE *fpData;
 extern "C" PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
 
-u_char TxPacket_tst[Test_tx_len+sizeof(PPI_PACKET_HEADER)];
+u_char TxPacket_tst[PPI802_HEADER_SIZE];
 
 
 QString NetworkEmulator::getInterfaceHardwareAddress(QString pcapName)
@@ -114,24 +114,31 @@ void NetworkEmulator::setMacFilters(QString filterInterfaceOne, QString filterIn
     QString interface1MAC = interfaceDataList[selectedInterfaceIndex1].hardwareAddress;
     QString interface2MAC = interfaceDataList[selectedInterfaceIndex2].hardwareAddress;
     // Filter out packets genereated from the selected interfaces
-    QString baseFilter1 = QString("(not ether src %1) and (not ether dst %2)").arg(interface1MAC).arg(interface2MAC);
+   /* QString baseFilter1 = QString("(ether src %1) and (not ether dst %2)").arg(interface1MAC).arg(interface2MAC);
     if ( filterInterfaceOne != "")
         baseFilter1 = baseFilter1 + QString(" and (%1)").arg(filterInterfaceOne);
-
-    QString baseFilter2 = QString("(not ether src %1) and (not ether dst %2)").arg(interface2MAC).arg(interface1MAC);
+*/
+    QString baseFilter1 = QString("(src port 39082)").arg(interface1MAC).arg(interface2MAC);
+        /*if ( filterInterfaceOne != "")
+            baseFilter1 = baseFilter1 + QString(" and (%1)").arg(filterInterfaceOne);*/
+    /*QString baseFilter2 = QString("(src port 39082)").arg(interface2MAC).arg(interface1MAC);
     if ( filterInterfaceTwo != "")
         baseFilter2 = baseFilter2 + QString(" and (%1)").arg(filterInterfaceTwo);
+        */
 
  //   setupWinPcapFilter(&pAdapterOne, baseFilter1);
 //    setupWinPcapFilter(&pAdapterTwo, baseFilter2);
 }
 
+//const char *interfaceOne = "file://c:/temp/footballCifNoICMP.pcap";
+extern const char *interfaceOne;
 void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
 {
     //An
     AirpcapMacAddress MacAddress;
-    double testtxrates = 0;
-    int ratesend = 9;
+    double testtxrates = 9;
+    int ratesend = 0;
+    AirpcapChannelInfo 	ChannelInfo;
 
     selectedInterfaceIndex1 = interface1;
     selectedInterfaceIndex2 = interface2;
@@ -141,13 +148,13 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
 
     // temporarily disable the online interface and enable offline file read
     //  const char *interfaceOne = ba1.data();
-    const char *interfaceOne = "file://c:/temp/foreman_cif_ipbFrames_0719_pcap.pcap";
+ //   const char *interfaceOne = "file://c:/temp/BigBuckBunnyHdnoICMP100.pcap";
     const char *interfaceTwo = ba2.data();
 
     char errbuf[PCAP_ERRBUF_SIZE];
     u_int32_t freq_chan = 11;
 
-    if ( (pAdapterOne= pcap_open(interfaceOne,          	// name of the device
+    if ( (pAdapterOne= pcap_open((const char*)interfaceOne,          	// name of the device
                                   PACKET_CAPTURE_SIZE,  	// portion of the packet to capture
                                                                 // 65536 guarantees that the whole packet will be captured on all the link layers
                                   PCAP_OPENFLAG_PROMISCUOUS,    // promiscuous mode
@@ -182,10 +189,21 @@ void NetworkEmulator::setSelectedInterfaces( int interface1, int interface2)
          pcap_close(pAdapterTwo);
          return;
     }
-    if(!AirpcapSetDeviceChannel(airpcap_handle, freq_chan))
+/*    if(!AirpcapSetDeviceChannel(airpcap_handle, freq_chan))
     {
          printf("Error in Setting the Channel : %s", AirpcapGetLastError(airpcap_handle));
          return;
+    } */
+
+    ChannelInfo.Frequency = 5540; //5825;  // 2457;
+    ChannelInfo.ExtChannel = 0;  //1;
+    ChannelInfo.Flags = AIRPCAP_CIF_TX_ENABLED;
+
+    if (!AirpcapSetDeviceChannelEx(airpcap_handle, ChannelInfo))
+    {
+        printf("Error in Setting the Channel Ext : %s", AirpcapGetLastError(airpcap_handle));
+        fprintf(fpData, "\n13: Error in Setting the Channel Ext: %s", AirpcapGetLastError(airpcap_handle));
+        return;
     }
 
      //An
