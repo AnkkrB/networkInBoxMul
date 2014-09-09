@@ -61,12 +61,14 @@ PacketPriority NALParser::prioritizePacket(const char *buf, int length)
 	float P = ALPHA * P_s + BETA * H + GAMMA * m_current_ts + DELTA * m_current_tg;
 
 	cout << "Priority score: " << P << endl;
+	//Max priority score is 1111; Divide the full range (0 - 1111) into quartiles
+    //In practice one would have to determine the max score, but this works for our purposes
 	//Heuristic placement of packets into priority bins
-	if(P > 1002.0)
+    if(P > 827.25)	//1002.0
 		priority = PRIORITY_HIGH;
-	else if(P > 700.0)
+    else if(P > 555.5)	//700.0
 		priority = PRIORITY_MED_HIGH;
-	else if(P > 200.0)
+    else if(P > 277.75)	//200.0
 		priority = PRIORITY_MED_LOW;
 	else
 		priority = PRIORITY_LOW;

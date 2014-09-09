@@ -24,6 +24,10 @@ ReaderThread::ReaderThread(QObject *parent) :
     packetsDropped = 0;
     eep_mcs = 5;
 
+    //Random number generator
+//    srand(time(0));
+    srand(312);//2134 //2567 //2890 //31290 //312
+
 }
 
 void ReaderThread::stop()
@@ -126,6 +130,7 @@ bool ReaderThread::isThisPacketToBeDropped()
             {
                 packetCount = 0;
                 result = false;
+
             }
         }
         else
@@ -167,12 +172,62 @@ void ReaderThread::run()
     while(!quit && (res = pcap_next_ex( pAdapter , &header, &pkt_data)) >= 0)
     {
         PacketPriority priority = prioritizer.prioritizePacket((char *)pkt_data, header->caplen * sizeof(char));
+        cout << "Priority score: " << priority << endl;
+        int rand_num = (rand() % 10);
+        //Markov model for EEP case
+        switch((int)eep_mcs)
+        {
+            case 5:
+                //20% chance that mcs 13 is selected
+                if(rand_num == 0 || rand_num == 1)
+                    eep_mcs = (UCHAR) eep_mcs+1;
+
+                break;
+            case 6:
+                //10% chance that mcs 14 is selected
+                if(rand_num == 0)
+                    eep_mcs = (UCHAR) eep_mcs+1;
+                //10% chance that mcs 12 is selected
+                else if(rand_num == 1)
+                    eep_mcs = (UCHAR) eep_mcs-1;
+
+                break;
+            case 7:
+                //10% chance that mcs 15 is selected
+                if(rand_num == 0)
+                    eep_mcs = (UCHAR) eep_mcs+1;
+                //10% chance that mcs 13 is selected
+                else if(rand_num == 1)
+                    eep_mcs = (UCHAR) eep_mcs-1;
+
+                break;
+            case 8:
+                //20% chance that mcs 14 is selected
+                if(rand_num == 0 || rand_num == 1)
+                    eep_mcs = (UCHAR) eep_mcs-1;
+
+                break;
+        }
+
+#if 0
         TxPacket_tst[21] = eep_mcs;//eep_mcs; //(UCHAR)(8);  // MCS 0 - 15
+#else
+        if (priority == PRIORITY_HIGH) {
+            TxPacket_tst[21] = (UCHAR)(eep_mcs-2);
+        } else if (priority == PRIORITY_MED_HIGH) {
+            TxPacket_tst[21] = (UCHAR)(eep_mcs-1);
+        } else if (priority == PRIORITY_MED_LOW) {
+            TxPacket_tst[21] = (UCHAR)(eep_mcs);
+        } else {  //(priority == PRIORITY_LOW)
+            TxPacket_tst[21] = (UCHAR)(eep_mcs+1);
+        }
+#endif
         pktWifi_data[counter] = (u_char*)malloc(sizeof(u_char)*((header->caplen)+PPI802_HEADER_SIZE));
         memcpy(&pktWifi_data[counter][0], TxPacket_tst, sizeof(u_char)*(PPI802_HEADER_SIZE));
         memcpy(&pktWifi_data[counter][PPI802_HEADER_SIZE], pkt_data, sizeof(u_char)*(header->caplen) );
         //PacketPriority priority = prioritizer.prioritizePacket((char *)pktWifi_data[counter],
           //                                                      sizeof(char)*((header->caplen)+PPI802_HEADER_SIZE));
+
         if(res == 0)
             continue; // Timeout elapsed
 
