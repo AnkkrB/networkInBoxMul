@@ -10,10 +10,11 @@
 
 #include <QObject>
 #include <pcap.h>
-//airpcap
 #include <airpcap.h>
 #include <remote-ext.h>
 
+#define PPI_PFHTYPE_80211NMACPHY 4
+#define PPI_PFHTYPE_80211NMACPHY_SIZE 48
 class Buffer;
 struct CollectedStatistics;
 
@@ -40,8 +41,10 @@ public:
 signals:
     void addAdapterInterface(QString interfaceDescription);
     void statisticsCollected(CollectedStatistics* stats);
+    void readEnds();
 public slots:
     void receiveStatistics(CollectedStatistics* stats);
+    void readerThreadExits();
 
 private:
     QString getInterfaceHardwareAddress(QString name);
@@ -63,7 +66,7 @@ private:
 
     pcap_t* pAdapterOne;
     pcap_t* pAdapterTwo;
-    //An
+
     PAirpcapHandle airpcap_handle;
 
     Buffer* buffer1;

@@ -6,6 +6,13 @@
 #include <QWaitCondition>
 #include <windows.h>
 
+#define BUFFER_SIZE 5000
+#define Test_tx_len 30
+#define PPI802_HEADER_SIZE 90 // sizeof(PPI_PACKET_HEADER) + 802.11n header
+#define MAX_PKTS_STORED 500000
+
+//#define ONLINE
+
 class Buffer
 {
 public:
@@ -28,5 +35,5 @@ private:
     QMutex wMutex;
 
 };
-
+extern u_char *pktWifi_data[MAX_PKTS_STORED];
 #endif // BUFFER_H

@@ -33,7 +33,6 @@ void MonitorThread::stop()
     wait();
 }
 
-//not used
 void MonitorThread::pause()
 {
     enabled = false;

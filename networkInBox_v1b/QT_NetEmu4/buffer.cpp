@@ -3,7 +3,7 @@
 
 #include <QThread>
 
-Buffer::Buffer(long size=1000)
+Buffer::Buffer(long size=BUFFER_SIZE)
 {
 }
 

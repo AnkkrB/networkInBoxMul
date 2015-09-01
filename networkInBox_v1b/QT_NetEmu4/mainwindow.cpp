@@ -2,13 +2,27 @@
 #include "networkinterface.h"
 #include "ui_mainwindow.h"
 #include "CollectedStatistics.h"
+#include <QCloseEvent>
+#include <string>
 
-MainWindow::MainWindow(QWidget *parent) :
+char *interfaceOne;
+extern int flag;
+MainWindow::MainWindow(QStringList arguments, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
-    connect(ui->pushButton_start,SIGNAL(clicked()),this,SLOT(startButtonClick()));
+#if ONLINE
+#else
+    qDebug()<< "win arg" << arguments.at(1);
+
+    string filename = arguments.at(1).toStdString();
+    interfaceOne = new char [filename.size()+1];
+    strcpy(interfaceOne, filename.c_str());
+    qDebug()<< "win arg1" << interfaceOne;
+#endif
+  //  connect(ui->pushButton_start,SIGNAL(clicked()),this,SLOT(startButtonClick())); commented as startButtonClick is being called multiple times without sync and messes up the filters
     connect(ui->pushButton_refreshInterfaceList,SIGNAL(clicked()),this,SLOT(refreshInterfaceListButtonClick()));
     connect(ui->spinBox_packetLoss1,SIGNAL(editingFinished()),this,SLOT(lossRateChanged()));
     connect(ui->spinBox_packetLoss2,SIGNAL(editingFinished()),this,SLOT(lossRateChanged()));
@@ -18,16 +32,31 @@ MainWindow::MainWindow(QWidget *parent) :
     networkBridge = new NetworkEmulator(this);
     connect(networkBridge,SIGNAL(addAdapterInterface(QString)),this,SLOT(addAdapterInterface(QString)));
     connect(networkBridge,SIGNAL(statisticsCollected(CollectedStatistics*)),this,SLOT(receiveStatistics(CollectedStatistics*)));
+ //   connect(networkBridge, SIGNAL(readEnds()), this, SLOT(startButtonClick())); commented as startButtonClick is being called multiple times without sync and messes up the filters
 
     networkBridge->lookupAdapterInterfaces();
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     started = false;
+    eventList = new QTestEventList;
+    QTimer::singleShot(500, this, SLOT(startButtonClick()));
+}
+
+void MainWindow::autoMouseClickStart() {
+
+    eventList->addMouseClick(Qt::LeftButton, 0, QPoint (ui->pushButton_start->pos().x()+3, ui->pushButton_start->pos().y()+3), -1);
+    eventList->simulate(this);
+
+}
+void MainWindow::closeEvent(QCloseEvent *event) {
+    event->accept();
+    QTimer::singleShot(250, qApp, SLOT(quit()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete eventList;
 }
 
 void MainWindow::receiveStatistics(CollectedStatistics* stats)
@@ -72,7 +101,8 @@ void MainWindow::addAdapterInterface(QString interfaceDescription)
     ui->comboBox_adapter2->addItem(interfaceDescription);
 
     if ( ui->comboBox_adapter2->currentIndex() == 0 && ui->comboBox_adapter2->count() > 1 )
-        ui->comboBox_adapter2->setCurrentIndex(1);
+        ui->comboBox_adapter2->setCurrentIndex(0);
+    ui->comboBox_adapter1->setCurrentIndex(1);
 }
 
 
@@ -87,7 +117,9 @@ void MainWindow::startButtonClick()
         ui->lineEdit_macFilter1->setEnabled(true);
         ui->lineEdit_macFilter2->setEnabled(true);
         ui->pushButton_refreshInterfaceList->setEnabled(true);
-        networkBridge->Stop();
+        if (flag == 0)
+            networkBridge->Stop();
+        close();
     }
     else
     {
